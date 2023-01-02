@@ -6,8 +6,7 @@ import os
 import subprocess
 import argparse
 
-DEFAULT_APP_NAME =  os.path.basename(os.getcwd())
-
+DEFAULT_APP_NAME = os.path.basename(os.getcwd())
 if __name__ == "__main__":
     # get arguments
     parser = argparse.ArgumentParser( )
@@ -16,4 +15,6 @@ if __name__ == "__main__":
     parsed_args = parser.parse_args( )
     app_name = parsed_args.app_name
 
-    subprocess.run(f'docker run --rm -d -p 80:80 --name {app_name} {app_name}', shell=True)
+    subprocess.run(f'docker stop {app_name}', shell=True)
+
+    

@@ -17,3 +17,6 @@ if __name__ == "__main__":
     app_name = parsed_args.app_name
 
     subprocess.run(f'docker run --rm -d -p 80:80 --name {app_name} {app_name}', shell=True)
+    
+
+    
