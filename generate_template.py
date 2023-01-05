@@ -1,6 +1,7 @@
-#
-#
-#
+# file:         generate_template.py
+# author:       Chandler Scott
+# updated:      01/03/22
+# description:  generate a template application
 
 import os
 import subprocess
@@ -34,15 +35,17 @@ def create_color_scheme(app_name, colors):
         '}'
     )
 
-    subprocess.run(f"{os_check()} mkdir {app_name}/src/values", shell=True)
+    subprocess.run(f"{os_check()} mkdir {app_name}/react-spa/src/values", shell=True)
 
-    f = open(f"{app_name}/src/values/colors.js", "w+")
+    f = open(f"{app_name}/react-spa/src/values/colors.js", "w+")
     f.write(color_file)
 
 
 def create_react_spa(app_name, colors):
+    subprocess.run(f"{os_check()} mkdir {app_name}", shell=True)
+    subprocess.run(f"npx create-react-app {app_name}/react-spa", shell=True)
     # create react application
-    subprocess.run(f"npx create-react-app {app_name}", shell=True)
+    subprocess.run(f"npx create-react-app {app_name}/react-spa", shell=True)
 
     # copy the following:
     # - dockerfile
@@ -52,33 +55,48 @@ def create_react_spa(app_name, colors):
     # - app-shell placeholder views
     # - package.json and package-lock.json
     subprocess.run(
-        f'{os_check()} cp -r template-files/react/. {app_name}', shell=True)
+        f'{os_check()} cp -r template-files/react/. {app_name}/react-spa', shell=True)
 
+    subprocess.run(f"{os_check()} mkdir {app_name}/nginx", shell=True)
+    subprocess.run(
+        f'{os_check()} cp -r template-files/nginx/. {app_name}/nginx', shell=True)
+    subprocess.run(
+        f'{os_check()} cp -r template-files/docker-compose.yml {app_name}', shell=True)
     # add in custom color scheme
     create_color_scheme(app_name, colors)
 
+    # remove unused files
+    unused_files = 'App.test.js logo.svg reportWebVitals.js setupTests.js'
+    subprocess.run(f'{os_check()} rm {unused_files}',
+                   shell=True, cwd=(app_name + '/react-spa/src/'))
     # install routing dependency
-    subprocess.run(f'npm install --save react-router-dom',
-                   shell=True, cwd=app_name)
-
+    # subprocess.run(f'npm install --save react-router-dom',
+    #                shell=True, cwd=app_name)
 
 if __name__ == "__main__":
     # get arguments
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=('Create an application template.'))
     parser.add_argument('-name', '--app_name',  type=str,
-                        dest='app_name', required=True,)
+                        dest='app_name', required=True,
+                        help='name of application to be created')
     parser.add_argument('-type', '--app_type',  type=str,
-                        dest='app_type', default=DEFAULT_APP_TYPE)
+                        dest='app_type', default=DEFAULT_APP_TYPE,
+                        help='type of application to generate (options: react)')
     parser.add_argument('-bg1', '--primary_background',  type=str,
-                        dest='primary_background_color', default=DEFAULT_PRIMARY_BACKGROUND_COLOR)
+                        dest='primary_background_color', default=DEFAULT_PRIMARY_BACKGROUND_COLOR,
+                        help="color for application's primary background")
     parser.add_argument('-bg2', '--secondary_background',  type=str,
-                        dest='secondary_background_color', default=DEFAULT_SECONDARY_BACKGROUND_COLOR)
+                        dest='secondary_background_color', default=DEFAULT_SECONDARY_BACKGROUND_COLOR, 
+                        help="color for application's secondary background")
     parser.add_argument('-t1', '--primary_text',  type=str,
-                        dest='primary_text_color', default=DEFAULT_PRIMARY_TEXT_COLOR)
+                        dest='primary_text_color', default=DEFAULT_PRIMARY_TEXT_COLOR,
+                        help="color for application's primary text")
     parser.add_argument('-t2', '--secondary_text',  type=str,
-                        dest='secondary_text_color', default=DEFAULT_SECONDARY_TEXT_COLOR)
+                        dest='secondary_text_color', default=DEFAULT_SECONDARY_TEXT_COLOR, 
+                        help="color for application's secondary text")
     parser.add_argument('-highlight', '--highlight_color',  type=str,
-                        dest='highlight_color', default=DEFAULT_HIGHLIGHT_COLOR)
+                        dest='highlight_color', default=DEFAULT_HIGHLIGHT_COLOR,
+                        help="highlight color for application buttons, pops, etc.")
 
     parsed_args = parser.parse_args()
     app_name = parsed_args.app_name

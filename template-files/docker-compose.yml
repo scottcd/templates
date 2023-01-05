@@ -1,0 +1,24 @@
+services:
+  reverse-proxy:
+    container_name: reverse-proxy
+    build: ./nginx/.
+    restart: 'unless-stopped'
+    ports:
+      - "80:80"
+    
+    networks:
+      - front-end
+    extra_hosts:
+      - 'host.docker.internal:172.17.0.1'
+
+  react-spa:
+    container_name: react-spa
+    hostname: react-spa
+    build: ./react-spa/.
+    ports:
+      - "81:80"
+    networks:
+      - front-end
+
+networks: 
+  front-end: {}
